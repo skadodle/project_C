@@ -315,8 +315,31 @@ tryrealloc(void *ptr, size_t size)
 int
 main(int argc, char *argv[]) {
 	char *align, *c;
-	char *a = argv[1];
-	char *b = argv[2];
+	char char_rw;
+	FILE* first = fopen(argv[1], "r");
+	FILE* second = fopen(argv[2], "r");
+	
+	unsigned int iter = 0;
+
+	fseek(first, 0, SEEK_END);
+	fseek(second, 0, SEEK_END);
+
+	size_t size_first = ftell(first);
+	size_t size_second = ftell(second);
+	
+	char *a = (char*)malloc(size_first * sizeof(char));
+	char *b = (char*)malloc(size_second * sizeof(char));
+
+	fseek(first, 0, SEEK_SET);
+	fseek(second, 0, SEEK_SET);
+
+	while ((char_rw = fgetc(first)) != EOF)
+		a[iter++] = char_rw;
+
+	iter = 0;
+
+	while ((char_rw = fgetc(second)) != EOF)
+		b[iter++] = char_rw;
 	
 	align = hirschberg(a, b, levenshtein);
 	if (align == NULL)
@@ -354,6 +377,12 @@ main(int argc, char *argv[]) {
 	
 	printf("\nmatches - %d\nall - %d\n", count_matches, count_all);
 	printf("plagiat = %.2f%c\n", ((float) count_matches / count_all) * 100, '%');
+
+	fclose(first);
+	fclose(second);
+
+	free(a);
+	free(b);
 
 	return 0;
 }
