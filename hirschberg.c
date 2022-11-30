@@ -308,24 +308,25 @@ tryrealloc(void *ptr, size_t size)
 }
 
 /*
- * main takes two strings a and b as arguments and prints their global
- * alignment to standard output in three lines: the alignment of a, the
- * edit sequence, and the alignment of b.
+ * main takes two files  and convert them to a and b as arguments and prints their global
+ * alignment to standard output in one line: the edit sequence.
  */
+
 int
 main(int argc, char *argv[]) {
 	char *align, *c;
 	char char_rw;
+
 	FILE* first = fopen(argv[1], "r");
 	FILE* second = fopen(argv[2], "r");
 	
-	unsigned int iter = 0;
-
 	fseek(first, 0, SEEK_END);
 	fseek(second, 0, SEEK_END);
 
 	size_t size_first = ftell(first);
 	size_t size_second = ftell(second);
+
+	unsigned int iter = 0;
 	
 	char *a = (char*)malloc(size_first * sizeof(char));
 	char *b = (char*)malloc(size_second * sizeof(char));

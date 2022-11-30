@@ -1,3 +1,10 @@
 test_progs/
+
 start
 a.out
+
+file_to_str.exe
+file_to_str
+
+hirschberg.exe
+hirschberg
