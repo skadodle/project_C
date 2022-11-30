@@ -12,7 +12,7 @@ int main(int argc, char *argv[]){
 	FILE* temp = tmpfile();
 	
 	while((c = getc(fptr)) != EOF)
-		if (c != '\t' /*&& c != ' '*/ && c != '\n')
+		if (c != '\'' && c != '\"' && c != '\t' && c != '\n')
 			fprintf(temp, "%c", c);
 
 	fclose(fptr);
