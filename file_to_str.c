@@ -7,6 +7,8 @@ int main(int argc, char *argv[]){
 	char c;
 	FILE* fptr;
 
+	char flag = '0';
+
 	if ((fptr = fopen(argv[1], "r")) == NULL)
 		return -1;
 	FILE* temp = tmpfile();

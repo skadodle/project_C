@@ -312,22 +312,90 @@ tryrealloc(void *ptr, size_t size)
  * alignment to standard output in one line: the edit sequence.
  */
 
+void str_file(char* str, char** sys, char* file){
+
+	for (int i = 0; i < strlen(str) + strlen(file); i++){
+		if (i < strlen(file))
+			(*sys)[i] = file[i];
+		else
+			(*sys)[i] = str[i - strlen(file)];
+	}
+}
+
+char file_to_str_iscorrect(FILE* file, char* sys, char* str){
+
+	char char_rw;
+
+	while ((char_rw = fgetc(file)) != EOF)
+		if (char_rw == '\'' || char_rw == '\"' || char_rw == '\t' || char_rw == '\n'){
+			fclose(file);
+			system(sys);
+			if ((file = fopen(str, "r")) == NULL)
+				return '0'; // -1
+			break;
+		}
+	return '1';
+}
+
 int
 main(int argc, char *argv[]) {
 	char *align, *c;
 	char char_rw;
 
-	FILE* first = fopen(argv[1], "r");
-	FILE* second = fopen(argv[2], "r");
+	char* file = "./file_to_str.exe ";
+	char res;
+
+	char* sys_first = (char*)malloc((strlen(argv[1]) + strlen(file)) * sizeof(char));
+	char* sys_second = (char*)malloc((strlen(argv[2]) + strlen(file)) * sizeof(char));
+
+	str_file(argv[1], &sys_first, file);
+
+	str_file(argv[2], &sys_second, file);
+
+	FILE* first;
+	FILE* second;
+
+	if ((first = fopen(argv[1], "r")) == NULL)
+		return -1;
+
+	if ((second = fopen(argv[2], "r")) == NULL)
+		return -1;
+
+	res = file_to_str_iscorrect(first, sys_first, argv[1]);
+	if (res == '0') return -1;
 	
+	res = file_to_str_iscorrect(second, sys_second, argv[2]);
+	if (res == '0') return -1;
+
 	fseek(first, 0, SEEK_END);
 	fseek(second, 0, SEEK_END);
 
 	size_t size_first = ftell(first);
 	size_t size_second = ftell(second);
 
+	fseek(first, 0, SEEK_SET);
+	fseek(second, 0, SEEK_SET);
+
 	unsigned int iter = 0;
 	
+	/*while ((char_rw = fgetc(first)) != EOF)
+		if (char_rw == '\'' || char_rw == '\"' || char_rw == '\t' || char_rw == '\n'){
+			fclose(first);
+			system(sys_first);
+			if ((first = fopen(argv[1], "r")) == NULL)
+				return -1;
+			break;
+		}
+					
+	while ((char_rw = fgetc(second)) != EOF)
+		if (char_rw == '\'' || char_rw == '\"' || char_rw == '\t' || char_rw == '\n'){
+			fclose(second);
+			system(sys_second);
+			if ((second = fopen(argv[2], "r")) == NULL)
+				return -1;
+			break;
+		}
+	*/
 	char *a = (char*)malloc(size_first * sizeof(char));
 	char *b = (char*)malloc(size_second * sizeof(char));
 
@@ -384,6 +452,9 @@ main(int argc, char *argv[]) {
 
 	free(a);
 	free(b);
+
+	free(sys_first);
+	free(sys_second);
 
 	return 0;
 }
