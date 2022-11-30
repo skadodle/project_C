@@ -16,6 +16,13 @@
 #include <string.h>
 #include <err.h>
 
+// SSS
+
+int count_matches = 0;
+int count_all = 0;
+
+// SSS
+
 /*
  * A costfunc represents a cost scheme for Hirschberg's algorithm.
  * It takes two characters and returns the cost of transforming the
@@ -320,7 +327,9 @@ main(int argc, char *argv[]) {
 		case '-':
 		case '!':
 		case '=':
-			putchar(*a++);
+			// putchar(*a++);
+			if (*c == '=') count_matches++;
+			count_all++;
 			break;
 		default:
 			putchar(' ');
@@ -335,7 +344,7 @@ main(int argc, char *argv[]) {
 		case '+':
 		case '!':
 		case '=':
-			putchar(*b++);
+			// putchar(*b++);
 			break;
 		default:
 			putchar(' ');
@@ -343,5 +352,8 @@ main(int argc, char *argv[]) {
 		}
 	putchar('\n');
 	
+	printf("\nmatches - %d\nall - %d\n", count_matches, count_all);
+	printf("plagiat = %.2f%c\n", ((float) count_matches / count_all) * 100, '%');
+
 	return 0;
 }
