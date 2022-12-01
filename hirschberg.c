@@ -16,12 +16,6 @@
 #include <string.h>
 #include <err.h>
 
-// SSS
-
-int count_matches = 0;
-int count_all = 0;
-
-// SSS
 
 /*
  * A costfunc represents a cost scheme for Hirschberg's algorithm.
@@ -313,7 +307,6 @@ tryrealloc(void *ptr, size_t size)
  */
 
 void str_file(char* str, char** sys, char* file){
-
 	for (int i = 0; i < strlen(str) + strlen(file); i++){
 		if (i < strlen(file))
 			(*sys)[i] = file[i];
@@ -322,15 +315,14 @@ void str_file(char* str, char** sys, char* file){
 	}
 }
 
-char file_to_str_iscorrect(FILE* file, char* sys, char* str){
-
+char file_to_str_iscorrect(FILE* fptr, char* str, char* sys){
 	char char_rw;
 
-	while ((char_rw = fgetc(file)) != EOF)
+	while ((char_rw = fgetc(fptr)) != EOF)
 		if (char_rw == '\'' || char_rw == '\"' || char_rw == '\t' || char_rw == '\n'){
-			fclose(file);
+			fclose(fptr);
 			system(sys);
-			if ((file = fopen(str, "r")) == NULL)
+			if ((fptr = fopen(str, "r")) == NULL)
 				return '0'; // -1
 			break;
 		}
@@ -342,15 +334,11 @@ main(int argc, char *argv[]) {
 	char *align, *c;
 	char char_rw;
 
+	int count_matches = 0;
+	int count_all = 0;
+	
 	char* file = "./file_to_str.exe ";
 	char res;
-
-	char* sys_first = (char*)malloc((strlen(argv[1]) + strlen(file)) * sizeof(char));
-	char* sys_second = (char*)malloc((strlen(argv[2]) + strlen(file)) * sizeof(char));
-
-	str_file(argv[1], &sys_first, file);
-
-	str_file(argv[2], &sys_second, file);
 
 	FILE* first;
 	FILE* second;
@@ -360,11 +348,17 @@ main(int argc, char *argv[]) {
 
 	if ((second = fopen(argv[2], "r")) == NULL)
 		return -1;
+	
+	char* sys_first = (char*)malloc((strlen(argv[1]) + strlen(file)) * sizeof(char));
+	char* sys_second = (char*)malloc((strlen(argv[2]) + strlen(file)) * sizeof(char));
 
-	res = file_to_str_iscorrect(first, sys_first, argv[1]);
+	str_file(argv[1], &sys_first, file);
+	str_file(argv[2], &sys_second, file);
+
+	res = file_to_str_iscorrect(first, argv[1], sys_first);
 	if (res == '0') return -1;
 	
-	res = file_to_str_iscorrect(second, sys_second, argv[2]);
+	res = file_to_str_iscorrect(second, argv[2], sys_second);
 	if (res == '0') return -1;
 
 	fseek(first, 0, SEEK_END);
@@ -378,29 +372,8 @@ main(int argc, char *argv[]) {
 
 	unsigned int iter = 0;
 	
-	/*while ((char_rw = fgetc(first)) != EOF)
-		if (char_rw == '\'' || char_rw == '\"' || char_rw == '\t' || char_rw == '\n'){
-			fclose(first);
-			system(sys_first);
-			if ((first = fopen(argv[1], "r")) == NULL)
-				return -1;
-			break;
-		}
-					
-	while ((char_rw = fgetc(second)) != EOF)
-		if (char_rw == '\'' || char_rw == '\"' || char_rw == '\t' || char_rw == '\n'){
-			fclose(second);
-			system(sys_second);
-			if ((second = fopen(argv[2], "r")) == NULL)
-				return -1;
-			break;
-		}
-	*/
 	char *a = (char*)malloc(size_first * sizeof(char));
 	char *b = (char*)malloc(size_second * sizeof(char));
-
-	fseek(first, 0, SEEK_SET);
-	fseek(second, 0, SEEK_SET);
 
 	while ((char_rw = fgetc(first)) != EOF)
 		a[iter++] = char_rw;
@@ -419,7 +392,6 @@ main(int argc, char *argv[]) {
 		case '-':
 		case '!':
 		case '=':
-			// putchar(*a++);
 			if (*c == '=') count_matches++;
 			count_all++;
 			break;
@@ -430,19 +402,6 @@ main(int argc, char *argv[]) {
 	putchar('\n');
 	
 	printf("%s\n", align);
-	
-	for (c = align; *c != '\0'; c++)
-		switch (*c) {
-		case '+':
-		case '!':
-		case '=':
-			// putchar(*b++);
-			break;
-		default:
-			putchar(' ');
-			break;
-		}
-	putchar('\n');
 	
 	printf("\nmatches - %d\nall - %d\n", count_matches, count_all);
 	printf("plagiat = %.2f%c\n", ((float) count_matches / count_all) * 100, '%');
