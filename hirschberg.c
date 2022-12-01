@@ -306,7 +306,9 @@ tryrealloc(void *ptr, size_t size)
  * alignment to standard output in one line: the edit sequence.
  */
 
+
 void str_file(char* str, char** sys, char* file){
+
 	for (int i = 0; i < strlen(str) + strlen(file); i++){
 		if (i < strlen(file))
 			(*sys)[i] = file[i];
@@ -315,14 +317,15 @@ void str_file(char* str, char** sys, char* file){
 	}
 }
 
-char file_to_str_iscorrect(FILE* fptr, char* str, char* sys){
+char file_to_str_iscorrect(FILE* file, char* sys, char* str){
+
 	char char_rw;
 
-	while ((char_rw = fgetc(fptr)) != EOF)
+	while ((char_rw = fgetc(file)) != EOF)
 		if (char_rw == '\'' || char_rw == '\"' || char_rw == '\t' || char_rw == '\n'){
-			fclose(fptr);
+			fclose(file);
 			system(sys);
-			if ((fptr = fopen(str, "r")) == NULL)
+			if ((file = fopen(str, "r")) == NULL)
 				return '0'; // -1
 			break;
 		}
@@ -333,15 +336,22 @@ int
 main(int argc, char *argv[]) {
 	char *align, *c;
 	char char_rw;
+	char* file = "./file_to_str.exe ";
 
 	int count_matches = 0;
 	int count_all = 0;
 	
-	char* file = "./file_to_str.exe ";
 	char res;
 
 	FILE* first;
 	FILE* second;
+	
+	char* sys_first = (char*)malloc((strlen(argv[1]) + strlen(file)) * sizeof(char));
+	char* sys_second = (char*)malloc((strlen(argv[2]) + strlen(file)) * sizeof(char));
+
+	str_file(argv[1], &sys_first, file);
+
+	str_file(argv[2], &sys_second, file);
 
 	if ((first = fopen(argv[1], "r")) == NULL)
 		return -1;
@@ -349,16 +359,10 @@ main(int argc, char *argv[]) {
 	if ((second = fopen(argv[2], "r")) == NULL)
 		return -1;
 	
-	char* sys_first = (char*)malloc((strlen(argv[1]) + strlen(file)) * sizeof(char));
-	char* sys_second = (char*)malloc((strlen(argv[2]) + strlen(file)) * sizeof(char));
-
-	str_file(argv[1], &sys_first, file);
-	str_file(argv[2], &sys_second, file);
-
-	res = file_to_str_iscorrect(first, argv[1], sys_first);
+	res = file_to_str_iscorrect(first, sys_first, argv[1]);
 	if (res == '0') return -1;
 	
-	res = file_to_str_iscorrect(second, argv[2], sys_second);
+	res = file_to_str_iscorrect(second, sys_second, argv[2]);
 	if (res == '0') return -1;
 
 	fseek(first, 0, SEEK_END);
