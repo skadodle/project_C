@@ -306,8 +306,6 @@ tryrealloc(void *ptr, size_t size)
  * alignment to standard output in one line: the edit sequence.
  */
 
-#define length(str1, str2) (strlen(strlen(str1) >= strlen(str2) ? str1 : str2))
-
 void str_file(char* str, char** sys, char* file){
 
 	for (int i = 0; i < strlen(file) + strlen(str); i++){
@@ -316,10 +314,6 @@ void str_file(char* str, char** sys, char* file){
 		else 
 			(*sys)[i] = str[i - strlen(file)];
 	}
-
-	if (strlen(str) + strlen(file) != strlen(*sys))
-		for (int i = strlen(str) + strlen(file); i < strlen(*sys); i++)
-			(*sys)[i] = ' ';
 
 }
 
@@ -352,7 +346,8 @@ main(int argc, char *argv[]) {
 	FILE* first;
 	FILE* second;
 		
-	char* sys = (char*)malloc((length(argv[1], argv[2]) + strlen(file)) * sizeof(char));
+	char* sys_first = (char*)malloc((strlen(argv[1]) + strlen(file)) * sizeof(char));
+	char* sys_second = (char*)malloc((strlen(argv[2]) + strlen(file)) * sizeof(char));
 
 	if ((first = fopen(argv[1], "r")) == NULL)
 		return -1;
@@ -360,17 +355,18 @@ main(int argc, char *argv[]) {
 	if ((second = fopen(argv[2], "r")) == NULL)
 		return -1;
 	
-	str_file(argv[1], &sys, file);
+	str_file(argv[1], &sys_first, file);
 
-	res = file_to_str_iscorrect(first, sys, argv[1]);
+	res = file_to_str_iscorrect(first, sys_first, argv[1]);
 	if (res == '0') return -1;
 	
-	str_file(argv[2], &sys, file);
+	str_file(argv[2], &sys_second, file);
 
-	res = file_to_str_iscorrect(second, sys, argv[2]);
+	res = file_to_str_iscorrect(second, sys_second, argv[2]);
 	if (res == '0') return -1;
 
-	free(sys);
+	free(sys_first);
+	free(sys_second);
 
 	fseek(first, 0, SEEK_END);
 	fseek(second, 0, SEEK_END);
