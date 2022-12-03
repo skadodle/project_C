@@ -21,50 +21,144 @@ void RemoveComments(char* filename){
     FILE* tmp = tmpfile();
 
     while((letter = fgetc(file)) != EOF){
-        if (inLComment){
+
+        if(inLComment){
             if(letter == '\n'){
                 inLComment = false;
                 prev_letter = '\0';
             }
             continue;
         }
-
-        if (letter == '/' && prev_letter == '/'){
-            inLComment = true;
+        if(inMLComment){
+            if(letter == '/' && prev_letter == '*'){
+                inMLComment = false;
+                prev_letter = '\0';
+                continue;
+            }
+            prev_letter = letter;
             continue;
         }
 
-        if(prev_letter != '\0'){
-            printf("%c", prev_letter);
-            fputc(prev_letter, tmp);
+        if(letter == '/' && prev_letter == '/'){
+            inLComment = true;
+            continue;
         }
+        if(letter == '*' && prev_letter == '/'){
+            inMLComment = true;
+            continue;
+        }
+
+        if(prev_letter != '\0')
+            fputc(prev_letter, tmp);
+        
         prev_letter = letter;
     }
-    if(prev_letter != '\0'){
-        printf("%c", prev_letter);
+    if(prev_letter != '\0')
         fputc(prev_letter, tmp);
-    }
+    
     fclose(file);
     file = fopen(filename, "w");
     CopyFile(tmp, file);
     fclose(file);
+    fclose(tmp);
 }
 
+void RemoveSymbols(char* filename, char symbols[], size_t symbolsCount){
+    FILE* file = fopen(filename, "r");
+    char letter;
+    FILE* tmp = tmpfile();
 
-void ReadElement(FILE* input){
+    while((letter = fgetc(file)) != EOF){
+        bool hit = false;
+        for(size_t i = 0; i < symbolsCount; i++){
+            if(letter == symbols[i]){
+                fputc('\n', tmp);
+                hit = true;
+                continue;
+            }
+        }
+        if (!hit)
+            fputc(letter, tmp);
+    }
+
+    fclose(file);
+    file = fopen(filename, "w");
+    CopyFile(tmp, file);
+    fclose(file);
+    fclose(tmp);
+}
+
+void RemoveSpaces(char* filename){
+
+    FILE* file = fopen(filename, "r");
+
+    char letter;
+    char prev_letter = '\0';
+
+    FILE* tmp = tmpfile();
+
+    bool nline = false;
+
+
+    while((letter = fgetc(file)) != EOF){
+
+
+        if(letter == '\n' && !nline){
+            nline = true;
+            fputc(letter, tmp);
+            prev_letter = letter;
+            continue;
+        }
+
+        if (nline){
+            if (letter == '\n' || letter == ' ' || letter == '\t'){
+                continue;
+            }
+            else{
+                nline = false;
+            }
+        }
+        else if(letter == prev_letter){
+            if(letter == '\n' || letter == ' ' || letter == '\t'){
+                continue;
+            }
+        }
+        fputc(letter, tmp);
+        prev_letter = letter;    
+    }
+
+    fclose(file);
+    file = fopen(filename, "w");
+    CopyFile(tmp, file);
+    fclose(file);
+    fclose(tmp);
+
+}
+
+void ReadElement(char* filename){
+
+    FILE* file = fopen(filename, "r");
 
     char word[128];
     char letter;
 
-    while((letter = fgetc(input)) != EOF){
+    while((letter = fgetc(file)) != EOF){
         printf("%s\n", word);
     }
 
+    fclose(file);
 }
+
 
 int main(int argc, char* argv[])
 {
     RemoveComments("formatc.c");
+    
+    const size_t SIZE = 7;
+    char symbols[SIZE] = {'{', '}', '(', ')', ';', '=', ','};
+    RemoveSymbols("formatc.c", symbols, SIZE);
+
+    RemoveSpaces("formatc.c");
     return 0;
 
 }
