@@ -3,12 +3,12 @@
 #include <stdbool.h>
 
 void CopyFile(FILE* from, FILE* to){
+    fseek(from, 0, SEEK_SET);
     char w;
     while((w = fgetc(from)) != EOF){
         fputc(w, to);
     }
 }
-
 
 void RemoveComments(char* filename){
     
@@ -21,14 +21,6 @@ void RemoveComments(char* filename){
     FILE* tmp = tmpfile();
 
     while((letter = fgetc(file)) != EOF){
-        
-        if(inMLComment){
-            if(letter == '/' && prev_letter == '*'){
-                inMLComment = false;
-                prev_letter = '\0';
-            }
-            continue;
-        }
         if (inLComment){
             if(letter == '\n'){
                 inLComment = false;
@@ -41,16 +33,12 @@ void RemoveComments(char* filename){
             inLComment = true;
             continue;
         }
-        if (letter == '*' && prev_letter == '/'){
-            inMLComment = true;
-            continue;
-        }
-        prev_letter = letter;
 
         if(prev_letter != '\0'){
             printf("%c", prev_letter);
             fputc(prev_letter, tmp);
         }
+        prev_letter = letter;
     }
     if(prev_letter != '\0'){
         printf("%c", prev_letter);
@@ -80,6 +68,3 @@ int main(int argc, char* argv[])
     return 0;
 
 }
-
-
-
