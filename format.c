@@ -1,6 +1,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
+
+typedef struct{
+    char* name;
+    int id;
+} Token;
 
 void CopyFile(FILE* from, FILE* to){
     fseek(from, 0, SEEK_SET);
@@ -63,7 +69,7 @@ void RemoveComments(char* filename){
     fclose(tmp);
 }
 
-void RemoveSymbols(char* filename, char symbols[], size_t symbolsCount){
+void RemoveSymbols(char* filename, char symbols[], size_t symbolsCount, bool tossOnNewLine){
     FILE* file = fopen(filename, "r");
     char letter;
     FILE* tmp = tmpfile();
@@ -72,7 +78,8 @@ void RemoveSymbols(char* filename, char symbols[], size_t symbolsCount){
         bool hit = false;
         for(size_t i = 0; i < symbolsCount; i++){
             if(letter == symbols[i]){
-                fputc('\n', tmp);
+                if(tossOnNewLine)
+                    fputc('\n', tmp);
                 hit = true;
                 continue;
             }
@@ -135,30 +142,107 @@ void RemoveSpaces(char* filename){
 
 }
 
-void ReadElement(char* filename){
+bool isVallidSymbol(char c){
+    if(c >= 'A' && c <= 'Z')
+        return true;
+    if(c >= 'a' && c <= 'z')
+        return true;
+    if(c >= '0' && c <= '9')
+        return true;
+    if(c == '_' || c == '[' || c == ']' || c == '\n')
+        return true;
+    return false;
+}
 
-    FILE* file = fopen(filename, "r");
+char* CheckOnTypeDeclaration(char* line){
 
-    char word[128];
-    char letter;
+    const size_t SIZE = 9;
+    char types[SIZE][15] = {"char", "int", "long", "short", "float", "double", "void", "size_t", "ssize_t"};
 
-    while((letter = fgetc(file)) != EOF){
-        printf("%s\n", word);
+    char* word = strtok(line, " ");
+    bool hit = false;
+
+
+    while( word != NULL ){
+
+        if(hit) {
+            size_t len = strlen(word);
+            for (size_t i = 0; i < len; i++){
+                if(!isVallidSymbol(word[i])){
+                    printf("Alarm! That is not a type name: %s, error: %c\n", word, word[i]);
+                    exit(-1);
+                }
+            }
+
+            //printf("This is string with type: %s, type name: %s\n", line, word);
+            
+            return word; // return неуместен т.к. дальше может быть еще несколько обьявлений типов
+            
+        }
+        
+        for (size_t i = 0; i < SIZE; i++){
+            if (strcmp(word, types[i]) == 0){
+                //printf("That a type: %s\n", word);
+                hit = true;
+                continue;        
+            }
+        }
+
+        word = strtok(NULL, " ");
+    }
+    
+    return "";
+}
+
+bool isValidTypename(char* typename){
+    if(strcmp(typename, "") == 0)
+        return false;
+    if(strcmp(typename, "\n") == 0)
+        return false;
+    if(strcmp(typename, " ") == 0)
+        return false;
+    if(strcmp(typename, "main") == 0)
+        return false;
+    return true;
+}
+
+void TokeniseFile(char* filename){
+    FILE * file = fopen(filename, "r");
+    char * line = NULL;
+    size_t len = 0;
+    ssize_t read;
+
+    while ((read = getline(&line, &len, file)) != -1) {
+        char* typename = CheckOnTypeDeclaration(line);
+
+        if(isValidTypename(typename)){
+            printf("typename: %s\n", typename);
+        }
     }
 
     fclose(file);
+    free(line);
 }
-
 
 int main(int argc, char* argv[])
 {
+
     RemoveComments("formatc.c");
     
-    const size_t SIZE = 7;
-    char symbols[SIZE] = {'{', '}', '(', ')', ';', '=', ','};
-    RemoveSymbols("formatc.c", symbols, SIZE);
+    const size_t SIZE1 = 7;
+    char symbols1[SIZE1] = {'{', '}', '(', ')', ';', '=', ','};
+    RemoveSymbols("formatc.c", symbols1, SIZE1, true);
+
+    const size_t SIZE2 = 1;
+    char symbols2[SIZE2] = {'*'};
+    RemoveSymbols("formatc.c", symbols2, SIZE2, false);
 
     RemoveSpaces("formatc.c");
+
+    TokeniseFile("formatc.c");
+
+
+
     return 0;
 
 }
