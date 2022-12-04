@@ -14,7 +14,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <err.h>
 
 
 /*
@@ -323,13 +322,17 @@ char file_to_str_iscorrect(FILE* file, char* str){
 	char char_rw;
 	
 	while ((char_rw = fgetc(file)) != EOF)
-		if (char_rw == '\'' || char_rw == '\"' || char_rw == '\t' || char_rw == '\n')
+		if (char_rw == '\'' || char_rw == '\"' || char_rw == '\t' || char_rw == '\n' || char_rw == ';' || char_rw == ':' || char_rw == '{') 
 			return '0'; // -1
 	return '1';
 }
 
 int
 main(int argc, char *argv[]) {
+
+	if (argc > 3)
+		return -1;
+
 	char *align, *c;
 	char char_rw;
 	char* file = "./file_to_str.exe ";
@@ -390,7 +393,7 @@ main(int argc, char *argv[]) {
 	
 	align = hirschberg(a, b, levenshtein);
 	if (align == NULL)
-		err(1, "hirschberg");
+		return -2;
 	
 	for (c = align; *c != '\0'; c++)
 		switch (*c) {
