@@ -343,5 +343,5 @@ void Formatfile(char* filein, char* fileout)
 }
 
 int main(){
-    Formatfile("program.c", "out.txt");
-} 
+    Formatfile("in.txt", "out.txt");
+}
