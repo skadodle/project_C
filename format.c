@@ -1,19 +1,6 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include <string.h>
-
-#define MAXTOKENS 500
-#define MAXTOKENLENGHT 3
-#define MAXSYMBOLS 32
+#include "format.h"
 
 int MAXTOKENID = 0;
-
-
-typedef struct{
-    char name[MAXSYMBOLS];
-    int id;
-} Token;
 
 void SetToken(Token* token){
     token -> id = MAXTOKENID;
@@ -216,12 +203,12 @@ char* CheckOnTypeDeclaration(char* line){
     return "";
 }
 
-bool isValidTypename(char* typename){
-    if(strcmp(typename, "") == 0)
+bool isValidTypename(char* name){
+    if(strcmp(name, "") == 0)
         return false;
-    if(strcmp(typename, "\n") == 0)
+    if(strcmp(name, "\n") == 0)
         return false;
-    if(strcmp(typename, " ") == 0)
+    if(strcmp(name, " ") == 0)
         return false;
     return true;
 }
@@ -312,8 +299,7 @@ void TokeniseFile(char* fromfilename, char* tofilename){
     free(line);
 }
 
-void Formatfile(char* filein, char* fileout)
-{
+void Formatfile(char* filein, char* fileout){
 
     FILE* tmp = tmpfile();
     FILE* initial = fopen(filein, "r");
@@ -327,7 +313,6 @@ void Formatfile(char* filein, char* fileout)
     const size_t SIZE2 = 1;
     char symbols2[SIZE2] = {'*'};
     RemoveSymbols(filein, symbols2, SIZE2, false);
-
     RemoveSpaces(filein);
 
     TokeniseFile(filein, fileout);
@@ -341,7 +326,3 @@ void Formatfile(char* filein, char* fileout)
     fclose(tmp);
     fclose(initial);
 }
-
-int main(){
-    Formatfile("program.c", "out.txt");
-} 
