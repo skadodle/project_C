@@ -330,7 +330,7 @@ char file_to_str_iscorrect(FILE* file, char* str){
 int
 main(int argc, char *argv[]) {
 
-	if (argc > 3)
+	if (argc != 3)
 		return -1;
 
 	char *align, *c;

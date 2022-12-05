@@ -4,7 +4,7 @@
 
 int main(int argc, char *argv[]){
 	
-	if (argc > 2)
+	if (argc != 2)
 		return -1;
 
 	char c;
@@ -21,11 +21,17 @@ int main(int argc, char *argv[]){
 		if (c == '#' || (c == '/' && prev_c == '/'))                                                                
         		flag = '1'; 
 
-      	if (flag != '1' && c != '{' && c != '}' && c != '\'' && c != '\"' && c != '(' && c != ')' && c != '[' && c != ']' && c != ';' && c != ":" && c != '\t' && c != '\n' && c != ',' && c != '.' && c != '/' && c != '\\')
+		if (c == '*' && prev_c == '/')
+			flag = '2';
+
+      	if (flag != '1' && flag != '2' && c != '{' && c != '}' && c != '\'' && c != '\"' && c != '(' && c != ')' && c != '[' && c != ']' && c != ';' && c != ":" && c != '\t' && c != '\n' && c != ',' && c != '.' && c != '/' && c != '\\')
  		      fprintf(temp, "%c", c);                                                         
                                                                                                                 
-        	if (c == '\n')                                                                 
-        		flag = '0';                                                                           
+        	if (c == '\n' && flag =='1')                                                                 
+        		flag = '0';            
+
+		if (c == '/' && prev_c == '*')
+			flag = '0';                                                               
                                                                                                                 
         	prev_c = c;                                                                                   
 	}
