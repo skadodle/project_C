@@ -324,6 +324,11 @@ main(int argc, char *argv[]) {
 
 	if (argc != 3)
 		return -1;
+	
+	if (argv[1] == argv[2]) {
+		printf("Plagiat - 100%");
+		return 0;
+	}
 
 	char *align, *c;
 	char char_rw;
@@ -398,6 +403,8 @@ main(int argc, char *argv[]) {
 
 	fclose(first);
 	fclose(second);
+
+	system("rm *.txt");
 
 	free(a);
 	free(b);

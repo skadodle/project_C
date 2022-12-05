@@ -162,15 +162,14 @@ bool isVallidSymbol(char c){
 }
 
 char* CheckOnTypeDeclaration(char* line){
-    const size_t SIZE = 9;
-    char types[SIZE][15] = {"char", "int", "long", "short", "float", "double", "void", "size_t", "ssize_t"};
+    char types[9][15] = {"char", "int", "long", "short", "float", "double", "void", "size_t", "ssize_t"};
 
     char* word = strtok(line, " ");
     bool hit = false;
 
     while( word != NULL ){
         if(hit) {
-            for (size_t i = 0; i < SIZE; i++){
+            for (size_t i = 0; i < 9; i++){
                 if (strcmp(word, types[i]) == 0){
                     continue;        
                 }
@@ -189,7 +188,7 @@ char* CheckOnTypeDeclaration(char* line){
             
         }
         
-        for (size_t i = 0; i < SIZE; i++){
+        for (size_t i = 0; i < 9; i++){
             if (strcmp(word, types[i]) == 0){
                 //printf("That a type: %s\n", word);
                 hit = true;
@@ -308,20 +307,17 @@ void Formatfile(char* filein, char* fileout){
 
     RemoveComments(filein);
 
-    const size_t SIZE1 = 7;
-    char symbols1[SIZE1] = {'{', '}', '(', ')', ';', '=', ','};
-    RemoveSymbols(filein, symbols1, SIZE1, true);
+    char symbols1[7] = {'{', '}', '(', ')', ';', '=', ','};
+    RemoveSymbols(filein, symbols1, 7, true);
 
-    const size_t SIZE2 = 1;
-    char symbols2[SIZE2] = {'*'};
-    RemoveSymbols(filein, symbols2, SIZE2, false);
+    char symbols2[1] = {'*'};
+    RemoveSymbols(filein, symbols2, 1, false);
     RemoveSpaces(filein);
 
     TokeniseFile(filein, fileout);
 
-    const size_t SIZE3 = 4;
-    char symbols3[SIZE3] = {'\'','\"'};
-    RemoveSymbols(fileout, symbols3, SIZE3, false);
+    char symbols3[4] = {'\'','\"'};
+    RemoveSymbols(fileout, symbols3, 4, false);
 
     RemoveSpaces(filein);
     
