@@ -15,6 +15,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "format.h"
+
 
 /*
  * A costfunc represents a cost scheme for Hirschberg's algorithm.
