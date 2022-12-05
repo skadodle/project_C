@@ -308,17 +308,7 @@ tryrealloc(void *ptr, size_t size)
 #define SK_ST(file) fseek(file, 0, SEEK_SET)
 #define SK_ED(file) fseek(file, 0, SEEK_END)
 
-void str_file(char* str, char** sys, char* file){
-	for (int i = 0; i < strlen(file) + strlen(str); i++){
-		if (i < strlen(file))
-			(*sys)[i] = file[i];
-		else 
-			(*sys)[i] = str[i - strlen(file)];
-	}
-
-}
-
-char file_to_str_iscorrect(FILE* file, char* str){
+char file_to_str_iscorrect(FILE* file){
 	char char_rw;
 	
 	while ((char_rw = fgetc(file)) != EOF)
@@ -335,7 +325,6 @@ main(int argc, char *argv[]) {
 
 	char *align, *c;
 	char char_rw;
-	char* file = "./file_to_str.exe ";
 
 	int count_matches = 0;
 	int count_all = 0;
@@ -349,23 +338,18 @@ main(int argc, char *argv[]) {
 	if ((second = fopen(argv[2], "r")) == NULL)
 		return -1;
 
-	if ((file_to_str_iscorrect(first, argv[1])) == '0'){
-		char* sys_first = (char*)malloc((strlen(argv[1]) + strlen(file)) * sizeof(char));
-		str_file(argv[1], &sys_first, file);
+	if ((file_to_str_iscorrect(first)) == '0'){
+		
 		fclose(first);
-		system(sys_first);
-		free(sys_first);
-		if ((first = fopen(argv[1], "r")) == NULL)
+		Formatfile(argv[1], "out.txt");
+		if ((first = fopen("out.txt", "r")) == NULL)
 			return -1;
 	}
 
-	if ((file_to_str_iscorrect(second, argv[2])) == '0'){
-		char* sys_second = (char*)malloc((strlen(argv[2]) + strlen(file)) * sizeof(char));
-		str_file(argv[2], &sys_second, file);
+	if ((file_to_str_iscorrect(second)) == '0'){
 		fclose(second);
-		system(sys_second);
-		free(sys_second);
-		if ((second = fopen(argv[2], "r")) == NULL)
+		Formatfile(argv[2], "out2.txt");
+		if ((second = fopen("out2.txt", "r")) == NULL)
 			return -1;
 	}
 
