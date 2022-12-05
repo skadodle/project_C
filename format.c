@@ -262,7 +262,7 @@ void AddTokenizedLine(char* line, Token tokens[], size_t tokenscount, FILE* file
         fputc(' ', file);
         token = strtok(NULL, " \n[]");
     }
-    fputc('\n', file);
+    fputc(' ', file);
 }
 
 void TokeniseFile(char* fromfilename, char* tofilename){
@@ -306,6 +306,8 @@ void Formatfile(char* filein, char* fileout){
 
     CopyFile(initial, tmp);
 
+    RemoveComments(filein);
+
     const size_t SIZE1 = 7;
     char symbols1[SIZE1] = {'{', '}', '(', ')', ';', '=', ','};
     RemoveSymbols(filein, symbols1, SIZE1, true);
@@ -318,8 +320,10 @@ void Formatfile(char* filein, char* fileout){
     TokeniseFile(filein, fileout);
 
     const size_t SIZE3 = 4;
-    char symbols3[SIZE3] = {'\'','\"','\n',' ',};
+    char symbols3[SIZE3] = {'\'','\"'};
     RemoveSymbols(fileout, symbols3, SIZE3, false);
+
+    RemoveSpaces(filein);
     
     initial = fopen(filein, "w");
     CopyFile(tmp, initial);
