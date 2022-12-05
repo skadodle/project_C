@@ -3,10 +3,22 @@
 #include <stdbool.h>
 #include <string.h>
 
+#define MAXTOKENS 500
+#define MAXTOKENLENGHT 3
+#define MAXSYMBOLS 32
+
+int MAXTOKENID = 0;
+
+
 typedef struct{
-    char* name;
+    char name[MAXSYMBOLS];
     int id;
 } Token;
+
+void SetToken(Token* token){
+    token -> id = MAXTOKENID;
+    MAXTOKENID++;
+}
 
 void CopyFile(FILE* from, FILE* to){
     fseek(from, 0, SEEK_SET);
@@ -95,6 +107,14 @@ void RemoveSymbols(char* filename, char symbols[], size_t symbolsCount, bool tos
     fclose(tmp);
 }
 
+char* FormatName(char* name){
+    char* newname = strtok(name, " \n");
+    
+    if(newname == NULL)
+        return name;
+    return newname;
+}
+
 void RemoveSpaces(char* filename){
 
     FILE* file = fopen(filename, "r");
@@ -155,17 +175,20 @@ bool isVallidSymbol(char c){
 }
 
 char* CheckOnTypeDeclaration(char* line){
-
     const size_t SIZE = 9;
     char types[SIZE][15] = {"char", "int", "long", "short", "float", "double", "void", "size_t", "ssize_t"};
 
     char* word = strtok(line, " ");
     bool hit = false;
 
-
     while( word != NULL ){
-
         if(hit) {
+            for (size_t i = 0; i < SIZE; i++){
+                if (strcmp(word, types[i]) == 0){
+                    continue;        
+                }
+            }
+
             size_t len = strlen(word);
             for (size_t i = 0; i < len; i++){
                 if(!isVallidSymbol(word[i])){
@@ -175,7 +198,6 @@ char* CheckOnTypeDeclaration(char* line){
             }
 
             //printf("This is string with type: %s, type name: %s\n", line, word);
-            
             return word; // return неуместен т.к. дальше может быть еще несколько обьявлений типов
             
         }
@@ -190,7 +212,7 @@ char* CheckOnTypeDeclaration(char* line){
 
         word = strtok(NULL, " ");
     }
-    
+
     return "";
 }
 
@@ -206,19 +228,105 @@ bool isValidTypename(char* typename){
     return true;
 }
 
+int isInTypenames(char* name, Token tokens[], size_t tokenscount){
+    for (size_t i = 0; i < tokenscount; i++)
+    {
+        if(strcmp(name,tokens[i].name) == 0){
+            return i;
+        }
+    }
+    return -1;
+}
+
+int AddToken(char* name, Token tokens[], size_t tokenscount){
+    int pos = isInTypenames(name, tokens, tokenscount);
+
+    if(pos != -1){
+        strcpy(tokens[pos].name, name);
+        SetToken(&tokens[pos]);
+        return 1;
+    } else if(tokenscount < MAXTOKENS){
+        strcpy(tokens[tokenscount].name, name);
+        SetToken(&tokens[tokenscount]);
+        return 0;
+    } else {
+        printf("Alarm! Not enought MAXNAMES, current count of names: %d, name that stopped program: %s\n",
+                (int)tokenscount, name);
+        return -1;
+    }
+    
+}
+
+void TokeniseLine(char* line, Token tokens[], size_t tokenscount){
+    size_t lenght = strlen(line);
+
+    char* buffer = (char*)malloc(sizeof(char) * (lenght+MAXTOKENLENGHT));
+
+    char* token = strtok(line, " ");
+   
+    while( token != NULL ) {
+        printf("1: %s\n", buffer);
+        bool tokened = false;
+        for (size_t i = 0; i < tokenscount; i++){
+            if(strcmp(FormatName(token), tokens[i].name)){
+                char tmptoken[MAXTOKENLENGHT];
+                sprintf(tmptoken, "%d", tokens[i].id);
+                strcat(buffer, tmptoken);
+                tokened = true;
+                break;
+            }
+        }
+        if(!tokened){
+            strcat(buffer, token);
+        }
+
+        strcat(buffer, " ");
+        token = strtok(NULL, " ");
+    }
+
+    strcpy(line, buffer);
+    free(buffer);
+}
+
 void TokeniseFile(char* filename){
     FILE * file = fopen(filename, "r");
     char * line = NULL;
     size_t len = 0;
     ssize_t read;
+    Token tokens[MAXTOKENS];
+
+    size_t tokenscount = 0;
 
     while ((read = getline(&line, &len, file)) != -1) {
-        char* typename = CheckOnTypeDeclaration(line);
+        char* typename = CheckOnTypeDeclaration(strdup(line));
+
+        int status = -2;
 
         if(isValidTypename(typename)){
-            printf("typename: %s\n", typename);
+            FormatName(typename);
+            //printf("%s\n", typename);
+            
+            int status = AddToken(typename, tokens, tokenscount);
+            if (status == 0){
+                tokenscount++;
+            }
+            else if (status == -1){
+                exit(-1);
+            }
         }
+
+        TokeniseLine(line, tokens, tokenscount);
+        //printf("%s\n", line);
+
     }
+
+    printf("----------------\n");
+
+    for (size_t i = 0; i < tokenscount; i++)
+    {
+        //printf("%s%d\n", tokens[i].name, tokens[i].id);
+    }
+    
 
     fclose(file);
     free(line);
@@ -240,8 +348,6 @@ int main(int argc, char* argv[])
     RemoveSpaces("formatc.c");
 
     TokeniseFile("formatc.c");
-
-
 
     return 0;
 
