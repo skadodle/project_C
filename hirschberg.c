@@ -14,7 +14,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <err.h>
 
 
 /*
@@ -306,8 +305,10 @@ tryrealloc(void *ptr, size_t size)
  * alignment to standard output in one line: the edit sequence.
  */
 
-void str_file(char* str, char** sys, char* file){
+#define SK_ST(file) fseek(file, 0, SEEK_SET)
+#define SK_ED(file) fseek(file, 0, SEEK_END)
 
+void str_file(char* str, char** sys, char* file){
 	for (int i = 0; i < strlen(file) + strlen(str); i++){
 		if (i < strlen(file))
 			(*sys)[i] = file[i];
@@ -317,23 +318,21 @@ void str_file(char* str, char** sys, char* file){
 
 }
 
-char file_to_str_iscorrect(FILE* file, char* sys, char* str){
-
+char file_to_str_iscorrect(FILE* file, char* str){
 	char char_rw;
 	
 	while ((char_rw = fgetc(file)) != EOF)
-		if (char_rw == '\'' || char_rw == '\"' || char_rw == '\t' || char_rw == '\n'){
-			fclose(file);
-			system(sys);
-			if ((file = fopen(str, "r")) == NULL)
-				return '0'; // -1
-			break;
-		}
+		if (char_rw == '\'' || char_rw == '\"' || char_rw == '\t' || char_rw == '\n' || char_rw == ';' || char_rw == ':' || char_rw == '{') 
+			return '0'; // -1
 	return '1';
 }
 
 int
 main(int argc, char *argv[]) {
+
+	if (argc > 3)
+		return -1;
+
 	char *align, *c;
 	char char_rw;
 	char* file = "./file_to_str.exe ";
@@ -341,41 +340,43 @@ main(int argc, char *argv[]) {
 	int count_matches = 0;
 	int count_all = 0;
 	
-	char res;
-
 	FILE* first;
 	FILE* second;
-		
-	char* sys_first = (char*)malloc((strlen(argv[1]) + strlen(file)) * sizeof(char));
-	char* sys_second = (char*)malloc((strlen(argv[2]) + strlen(file)) * sizeof(char));
 
 	if ((first = fopen(argv[1], "r")) == NULL)
 		return -1;
 
 	if ((second = fopen(argv[2], "r")) == NULL)
 		return -1;
-	
-	str_file(argv[1], &sys_first, file);
 
-	res = file_to_str_iscorrect(first, sys_first, argv[1]);
-	if (res == '0') return -1;
-	
-	str_file(argv[2], &sys_second, file);
+	if ((file_to_str_iscorrect(first, argv[1])) == '0'){
+		char* sys_first = (char*)malloc((strlen(argv[1]) + strlen(file)) * sizeof(char));
+		str_file(argv[1], &sys_first, file);
+		fclose(first);
+		system(sys_first);
+		free(sys_first);
+		if ((first = fopen(argv[1], "r")) == NULL)
+			return -1;
+	}
 
-	res = file_to_str_iscorrect(second, sys_second, argv[2]);
-	if (res == '0') return -1;
+	if ((file_to_str_iscorrect(second, argv[2])) == '0'){
+		char* sys_second = (char*)malloc((strlen(argv[2]) + strlen(file)) * sizeof(char));
+		str_file(argv[2], &sys_second, file);
+		fclose(second);
+		system(sys_second);
+		free(sys_second);
+		if ((second = fopen(argv[2], "r")) == NULL)
+			return -1;
+	}
 
-	free(sys_first);
-	free(sys_second);
-
-	fseek(first, 0, SEEK_END);
-	fseek(second, 0, SEEK_END);
+	SK_ED(first);
+	SK_ED(second);
 
 	size_t size_first = ftell(first);
 	size_t size_second = ftell(second);
 
-	fseek(first, 0, SEEK_SET);
-	fseek(second, 0, SEEK_SET);
+	SK_ST(first);
+	SK_ST(second);
 
 	unsigned int iter = 0;
 	
@@ -392,7 +393,7 @@ main(int argc, char *argv[]) {
 	
 	align = hirschberg(a, b, levenshtein);
 	if (align == NULL)
-		err(1, "hirschberg");
+		return -2;
 	
 	for (c = align; *c != '\0'; c++)
 		switch (*c) {
