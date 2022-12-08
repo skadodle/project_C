@@ -210,6 +210,12 @@ tryrealloc(void *ptr, size_t size)
 #define SK_ST(file) fseek(file, 0, SEEK_SET)
 #define SK_ED(file) fseek(file, 0, SEEK_END)
 
+void man(){
+	printf("\n\tПособие по использованию программы:\n\tДля запуска используйте следующую структуру: ./start file1 file2 [-f]");
+	printf("\n\tДополнительные параметры: [-f] для сравнения file1 file2 и file2 file1 после чего выводится среднее значение.\n");
+	printf("\n\tПосле проверки если итоговое значение > 60%c, то программа списана, возможно с заменой переменных.\n\n", '%');
+}
+
 char file_to_str_iscorrect(FILE* file){
 	char char_rw;
 	
@@ -222,17 +228,22 @@ char file_to_str_iscorrect(FILE* file){
 int
 main(int argc, char *argv[]) {
 
-	if (argc != 3)
-		return -1;
-	
-	if (argv[1] == argv[2]) {
-		printf("Plagiat - 100%");
+	if (argc == 2 && strcmp("--help", argv[1]) == 0 || strcmp("-h", argv[1]) == 0) {
+		man();
 		return 0;
+	}
+
+	if (argc < 3){
+		printf("%s!\n", "Dont have enough files to start");
+		return -1;
 	}
 
 	char *align, *c;
 	char char_rw;
 
+	float res = 0;
+
+	short flag = (argc == 4 && (strcmp(argv[3], "-f") == 0));
 	int count_matches = 0;
 	int count_all = 0;
 	
@@ -241,23 +252,24 @@ main(int argc, char *argv[]) {
 
 	if ((first = fopen(argv[1], "r")) == NULL)
 		return -1;
+	
+	if ((file_to_str_iscorrect(first)) == '0'){
+		fclose(first);
+		Formatfile(argv[1], "out.txt");
+		
+		if ((first = fopen("out.txt", "r")) == NULL)
+			return -1;
+	}		
 
 	if ((second = fopen(argv[2], "r")) == NULL)
 		return -1;
-
-	if ((file_to_str_iscorrect(first)) == '0'){
-		
-		fclose(first);
-		Formatfile(argv[1], "out.txt");
-		if ((first = fopen("out.txt", "r")) == NULL)
-			return -1;
-	}
-
+	
 	if ((file_to_str_iscorrect(second)) == '0'){
 		fclose(second);
 		Formatfile(argv[2], "out2.txt");
-		if ((second = fopen("out2.txt", "r")) == NULL)
-			return -1;
+		
+	if ((second = fopen("out2.txt", "r")) == NULL)
+		return -1;
 	}
 
 	SK_ED(first);
@@ -273,38 +285,50 @@ main(int argc, char *argv[]) {
 	
 	char *a = (char*)malloc(size_first * sizeof(char));
 	char *b = (char*)malloc(size_second * sizeof(char));
+	
 
 	while ((char_rw = fgetc(first)) != EOF)
 		a[iter++] = char_rw;
 
 	iter = 0;
-
+	
 	while ((char_rw = fgetc(second)) != EOF)
 		b[iter++] = char_rw;
-	
-	align = hirschberg(a, b, levenshtein);
-	if (align == NULL)
-		return -2;
-	
-	for (c = align; *c != '\0'; c++)
-		switch (*c) {
-		case '-':
-		case '!':
-		case '=':
-			if (*c == '=') count_matches++;
-			count_all++;
-			break;
-		default:
-			break;
-		}
+		
+	for (int i = 0; i <= flag; i++){
 
-	printf("matches - %d\nall - %d\n", count_matches, count_all);
-	printf("plagiat = %.2f%c\n", ((float) count_matches / count_all) * 100, '%');
+		if (i == 0)	
+			align = hirschberg(a, b, levenshtein);
+		if (i == 1)
+			align = hirschberg(b, a, levenshtein);
 
+		if (align == NULL)
+			return -2;
+
+		for (c = align; *c != '\0'; c++)
+			switch (*c) {
+			case '-':
+			case '!':
+			case '=':
+				if (*c == '=') count_matches++;
+					count_all++;
+				break;
+			default:
+				break;
+			}
+			
+		res += (float)count_matches / count_all;
+	}
+
+	res *= 100;
+
+	if (flag)
+		res /= 2;
+	
+	printf("\tPlagiat = %.2f%c\n", res, '%');
+	
 	fclose(first);
 	fclose(second);
-
-	system("rm *.txt");
 
 	free(a);
 	free(b);
