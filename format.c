@@ -329,4 +329,7 @@ void Formatfile(char* filein, char* fileout){
     CopyFile(tmp, initial);
     fclose(tmp);
     fclose(initial);
+
+    MAXTOKENID = 0;
+
 }
