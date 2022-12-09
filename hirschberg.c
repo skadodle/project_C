@@ -244,6 +244,9 @@ main(int argc, char *argv[]) {
 	float res = 0;
 
 	short flag = (argc == 4 && (strcmp(argv[3], "-f") == 0));
+	if (flag)
+		printf("\tФлаг -f обнаружен\n");
+
 	int count_matches = 0;
 	int count_all = 0;
 	
@@ -253,10 +256,12 @@ main(int argc, char *argv[]) {
 	if ((first = fopen(argv[1], "r")) == NULL)
 		return -1;
 	
+	printf("\tПервый файл успешно открыт\n");
+
 	if ((file_to_str_iscorrect(first)) == '0'){
 		fclose(first);
 		Formatfile(argv[1], "out.txt");
-		
+		printf("\tТокенизация для первого файла успешна\n");
 		if ((first = fopen("out.txt", "r")) == NULL)
 			return -1;
 	}		
@@ -264,12 +269,14 @@ main(int argc, char *argv[]) {
 	if ((second = fopen(argv[2], "r")) == NULL)
 		return -1;
 	
+	printf("\tВторой файл успешно открыт\n");
+
 	if ((file_to_str_iscorrect(second)) == '0'){
 		fclose(second);
 		Formatfile(argv[2], "out2.txt");
-		
-	if ((second = fopen("out2.txt", "r")) == NULL)
-		return -1;
+		printf("\tТокенизация для второго файла успешна\n");
+		if ((second = fopen("out2.txt", "r")) == NULL)
+			return -1;
 	}
 
 	SK_ED(first);
@@ -318,6 +325,10 @@ main(int argc, char *argv[]) {
 			}
 			
 		res += (float)count_matches / count_all;
+		if (i == 0)
+			printf("\tСравнение file1 file2\n");
+		if (i == 1)
+			printf("\tСравнение file2 file1\n");
 	}
 
 	res *= 100;
@@ -327,6 +338,8 @@ main(int argc, char *argv[]) {
 	
 	printf("\tPlagiat = %.2f%c\n", res, '%');
 	
+	printf("\tПрограмма завершила выполнение, файлы сравнены, их токенизированная форма в файлах: out.txt и out2.txt\n");
+
 	fclose(first);
 	fclose(second);
 
