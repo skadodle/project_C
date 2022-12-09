@@ -23,6 +23,7 @@ typedef enum {
 	Ins = 2,
 } editop;
 
+/*
 char		*hirschberg(const char *, const char*, costfunc);
 static char	*hirschberg_recursive(char *, const char *, size_t, const char *, size_t, costfunc);
 static char	*nwalign(char *, const char *, size_t, const char *, size_t, costfunc);
@@ -31,6 +32,7 @@ static void	nwrcost(int *, const char *, size_t, const char *, size_t, costfunc)
 static editop	nwmin(int[3], char, char, costfunc);
 static void	memrev(void *, size_t);
 static void	*tryrealloc(void *, size_t);
+*/
 
 char *
 hirschberg(const char *a, const char *b, costfunc f)
@@ -225,8 +227,7 @@ char file_to_str_iscorrect(FILE* file){
 	return '1';
 }
 
-int
-main(int argc, char *argv[]) {
+float hirschberg (int argc, char *argv[]) {
 
 	if (argc == 1) {
 		man();
@@ -340,8 +341,6 @@ main(int argc, char *argv[]) {
 	if (flag)
 		res /= 2;
 	
-	printf("\tPlagiat = %.2f%c\n", res, '%');
-	
 	printf("\tПрограмма завершила выполнение, файлы сравнены, их токенизированная форма в файлах: out.txt и out2.txt\n");
 
 	fclose(first);
@@ -352,5 +351,5 @@ main(int argc, char *argv[]) {
 	free(a);
 	free(b);
 
-	return 0;
+	return res;
 }
