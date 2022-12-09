@@ -228,7 +228,7 @@ char file_to_str_iscorrect(FILE* file){
 int
 main(int argc, char *argv[]) {
 
-	if (argc == 2 && strcmp("--help", argv[1]) == 0 || strcmp("-h", argv[1]) == 0) {
+	if (argc == 1) {
 		man();
 		return 0;
 	}
