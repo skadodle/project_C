@@ -347,6 +347,8 @@ main(int argc, char *argv[]) {
 	fclose(first);
 	fclose(second);
 
+	free(align);
+
 	free(a);
 	free(b);
 
