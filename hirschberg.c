@@ -213,7 +213,7 @@ tryrealloc(void *ptr, size_t size)
 void man(){
 	printf("\n\tПособие по использованию программы:\n\tДля запуска используйте следующую структуру: ./start file1 file2 [-f]");
 	printf("\n\tДополнительные параметры: [-f] для сравнения file1 file2 и file2 file1 после чего выводится среднее значение.\n");
-	printf("\n\tПосле проверки если итоговое значение > 60%c, то программа списана, возможно с заменой переменных.\n\n", '%');
+	//printf("\n\tПосле проверки если итоговое значение > 60%c, то программа списана, возможно с заменой переменных.\n\n", '%');
 }
 
 char file_to_str_iscorrect(FILE* file){
@@ -246,6 +246,8 @@ main(int argc, char *argv[]) {
 	short flag = (argc == 4 && (strcmp(argv[3], "-f") == 0));
 	if (flag)
 		printf("\tФлаг -f обнаружен\n");
+	else 
+		printf("\tФлаг -f не обнаружен\n");
 
 	int count_matches = 0;
 	int count_all = 0;
@@ -303,6 +305,8 @@ main(int argc, char *argv[]) {
 		b[iter++] = char_rw;
 		
 	for (int i = 0; i <= flag; i++){
+		count_matches = 0;
+		count_all = 0;
 
 		if (i == 0)	
 			align = hirschberg(a, b, levenshtein);
