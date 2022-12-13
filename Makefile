@@ -1,2 +1,2 @@
-start : hirschberg.c format.c
-	gcc hirschberg.c format.c -o start
+start : main.c hirschberg.c format.c
+	gcc main.c hirschberg.c format.c -o start
