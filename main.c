@@ -1,10 +1,11 @@
 #include <dirent.h>
+#include <regex.h>
 #include "hirschberg.h"
 
 #define MAXFILES 512
 
 typedef struct {
-    char* name1;
+    char* name;
     float percent; 
 } np;
 
@@ -22,17 +23,38 @@ void man(){
 	//printf("\n\tПосле проверки если итоговое значение > 60%c, то программа списана, возможно с заменой переменных.\n\n", '%');
 }
 
-void PrintDiff(float percent){
-    printf("Процент плагиата: %f \n", percent);
+void PrintDiff(float percent, char* name1, char* name2){
+    if(percent < 0)
+        return;
+    
+    printf("Процент плагиата файла '%s' с '%s': %.1f\n", name1, name2, percent);
 }
 
+//TODO Remake with regular expressions
 bool IsValidFilename(char* name){
-    //TODO
-    return true;
+    size_t len = strlen(name);
+    for (size_t i = 0; i < len-2; i++)
+    {
+        if(!(isalpha(name[i]) || isnumber(name[i]) || isspace(name[i]) || name[i] == '_' || name[i] == '/')){
+            return false;
+        }
+    }
+    if(len > 1){
+        if(name[len-2] == '.' && name[len-1] == 'c')
+            return true;
+    }
+    return false;
 }
 
+//TODO Remake with regular expressions
 bool IsValidDirname(char* name){
-    //TODO
+    size_t len = strlen(name);
+    for (size_t i = 0; i < len; i++)
+    {
+        if(!(isalpha(name[i]) || isnumber(name[i]) || isspace(name[i]) || name[i] == '_' || name[i] == '/')){
+            return false;
+        }
+    }
     return true;
 }
 
@@ -52,7 +74,7 @@ np* GetDirDiff(char* filename, char* dirname, bool fullCompare, size_t *size){
                 continue;
             
             char* tfname = strcat(strcat(strdup(dirname), "/"), dir->d_name);
-            res[count].name1 = strdup(tfname);
+            res[count].name = strdup(tfname);
             res[count].percent = CompareFiles(filename, tfname, fullCompare);
             count++;
         }
@@ -71,11 +93,13 @@ void ParseArgs(int argc, char* argv[]){
         printf("\tНеверный ввод!\n");
         man();
     }
-    else if (false && argc >= 3 && IsValidFilename(argv[1]) && IsValidFilename(argv[2])){
+    else if (argc >= 3 && IsValidFilename(argv[1]) && IsValidFilename(argv[2])){
+        float percent = 0;
         if (argc == 4 && strcmp(argv[3], "-f") == 0)
-            PrintDiff(CompareFiles(argv[1], argv[2], true));
+            percent = CompareFiles(argv[1], argv[2], true);
         else
-            PrintDiff(CompareFiles(argv[1], argv[2], false));
+            percent = CompareFiles(argv[1], argv[2], false);
+        PrintDiff(percent, argv[1], argv[2]);
     }
     else if (argc >= 3 && IsValidFilename(argv[1]) && IsValidDirname(argv[2])){
         np* res;
@@ -89,9 +113,8 @@ void ParseArgs(int argc, char* argv[]){
 
         for (size_t i = 0; i < size; i++)
         {
-            printf("n: %s p: %f\n", res[i].name1, res[i].percent);
+            PrintDiff(res[i].percent, argv[1], res[i].name);
         }
-        
     }
 }
 

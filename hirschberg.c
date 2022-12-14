@@ -197,7 +197,7 @@ float CompareFiles(char* fname1, char* fname2, bool fullCompare){
 	FILE* second;
 
 	if ((first = fopen(fname1, "r")) == NULL){
-		printf("Open file1 error.\n");
+		printf("Проблема с открытием файла: %s.\n", fname1);
 		return -1;
 	}
 	
@@ -211,7 +211,7 @@ float CompareFiles(char* fname1, char* fname2, bool fullCompare){
 	}		
 
 	if ((second = fopen(fname2, "r")) == NULL){
-		printf("Open file2 error.\n");
+		printf("Проблема с открытием файла: %s.\n", fname2);
 		return -1;
 	}
 	

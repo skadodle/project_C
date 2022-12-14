@@ -1,5 +1,5 @@
-#ifndef HEADER_FILE
-#define HEADER_FILE
+#ifndef FORMAT
+#define FORMAT
 
 #include <stdlib.h>
 #include <stdio.h>

@@ -1,6 +1,7 @@
 #ifndef HIRSCHBERG
 #define HIRSCHBERG
 #include <sys/types.h>
+#include <ctype.h>
 
 #include <stdlib.h>
 #include <stdio.h>
