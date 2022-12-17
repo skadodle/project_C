@@ -36,7 +36,7 @@ bool IsValidFilename(char* name){
     size_t len = strlen(name);
     for (size_t i = 0; i < len-2; i++)
     {
-        if(!(isalpha(name[i]) || isnumber(name[i]) || isspace(name[i]) || name[i] == '_' || name[i] == '/')){
+        if(!(isalpha(name[i]) || isdigit(name[i]) || isspace(name[i]) || name[i] == '_' || name[i] == '/')){
             return false;
         }
     }
@@ -52,7 +52,7 @@ bool IsValidDirname(char* name){
     size_t len = strlen(name);
     for (size_t i = 0; i < len; i++)
     {
-        if(!(isalpha(name[i]) || isnumber(name[i]) || isspace(name[i]) || name[i] == '_' || name[i] == '/')){
+        if(!(isalpha(name[i]) || isdigit(name[i]) || isspace(name[i]) || name[i] == '_' || name[i] == '/')){
             return false;
         }
     }
