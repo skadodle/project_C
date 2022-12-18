@@ -224,6 +224,7 @@ float CompareFiles(char* fname1, char* fname2, bool fullCompare){
 		}
 	}
 
+
 	SK_ED(first);
 	SK_ED(second);
 
@@ -237,6 +238,7 @@ float CompareFiles(char* fname1, char* fname2, bool fullCompare){
 	
 	char *a = (char*)malloc(size_first * sizeof(char));
 	char *b = (char*)malloc(size_second * sizeof(char));
+
 	
 
 	while ((char_rw = fgetc(first)) != EOF)
@@ -247,6 +249,7 @@ float CompareFiles(char* fname1, char* fname2, bool fullCompare){
 	while ((char_rw = fgetc(second)) != EOF)
 		b[iter++] = char_rw;
 		
+	
 	for (int i = 0; i <= fullCompare; i++){
 		count_matches = 0;
 		count_all = 0;
@@ -272,6 +275,7 @@ float CompareFiles(char* fname1, char* fname2, bool fullCompare){
 			}
 			
 		res += (float)count_matches / count_all;
+		free(align);
 	}
 
 	res *= 100;
@@ -282,8 +286,7 @@ float CompareFiles(char* fname1, char* fname2, bool fullCompare){
 	fclose(first);
 	fclose(second);
 
-	free(align);
-
+	size_t l1 = strlen(a);
 	free(a);
 	free(b);
 

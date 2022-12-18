@@ -74,8 +74,12 @@ np* GetDirDiff(char* filename, char* dirname, bool fullCompare, size_t *size){
             if (strcmp(dir->d_name, ".")  == 0 || strcmp(dir->d_name, "..") == 0)
                 continue;
             
-            char* tfname = strcat(strcat(strdup(dirname), "/"), dir->d_name);
-            res[count].name = strdup(tfname);
+            char* sd = strdup(dirname);
+            char* tfname = strcat(strcat(sd, "/"), dir->d_name);
+            free(sd);
+            sd = strdup(tfname);
+            res[count].name = sd;
+            free(sd);
             if(IsValidFilename(tfname)){
                 res[count].percent = CompareFiles(filename, tfname, fullCompare);
             }
