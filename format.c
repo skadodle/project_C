@@ -276,8 +276,10 @@ void TokeniseFile(char* fromfilename, char* tofilename){
     FILE* tfile = fopen(tofilename, "w");
 
     while ((read = getline(&line, &len, file)) != -1) {
-        char* typename = CheckOnTypeDeclaration(strdup(line));
+        char* s = strdup(line);
+        char* typename = CheckOnTypeDeclaration(s);
         int status = -2;
+        free(s);
 
         if(isValidTypename(typename)){
             FormatName(typename);
@@ -291,7 +293,9 @@ void TokeniseFile(char* fromfilename, char* tofilename){
                 exit(-1);
             }
         }
-        AddTokenizedLine(strdup(line), tokens, tokenscount, tfile);
+        s = strdup(line);
+        AddTokenizedLine(s, tokens, tokenscount, tfile);
+        free(s);
     }
     fclose(file);
     fclose(tfile);
